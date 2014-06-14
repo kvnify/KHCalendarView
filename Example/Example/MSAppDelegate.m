@@ -29,6 +29,7 @@
     RKManagedObjectStore *managedObjectStore = [[RKManagedObjectStore alloc] initWithManagedObjectModel:managedObjectModel];
     objectManager.managedObjectStore = managedObjectStore;
     
+    
     NSEntityDescription *entity = [[managedObjectStore.managedObjectModel entitiesByName] objectForKey:@"Event"];
     RKEntityMapping *eventMapping = [[RKEntityMapping alloc] initWithEntity:entity];
     [eventMapping addAttributeMappingsFromArray:@[ @"title" ]];
@@ -65,9 +66,10 @@
     [self setupRestKitWithBaseURL:[NSURL URLWithString:@"http://api.seatgeek.com/2/"]];
     
     MSCalendarViewController *calendarViewController = [[MSCalendarViewController alloc] init];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:calendarViewController];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = calendarViewController;
+    self.window.rootViewController = navigationController;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;

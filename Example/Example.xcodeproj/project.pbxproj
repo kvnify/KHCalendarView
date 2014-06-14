@@ -29,6 +29,7 @@
 		3A9EDBB816DE8FAF0017C4ED /* MSCurrentTimeGridline.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A9EDBB716DE8FAF0017C4ED /* MSCurrentTimeGridline.m */; };
 		3A9EDBBB16DE8FEB0017C4ED /* MSCurrentTimeIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A9EDBBA16DE8FEB0017C4ED /* MSCurrentTimeIndicator.m */; };
 		73FE75D8C4884452BD700225 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68FEEAE8C40D4C23B857EFA6 /* libPods.a */; };
+		AC2B2F5A194CA26A00C10183 /* GWEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = AC2B2F59194CA26A00C10183 /* GWEvent.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +70,8 @@
 		3A9EDBBA16DE8FEB0017C4ED /* MSCurrentTimeIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSCurrentTimeIndicator.m; sourceTree = "<group>"; };
 		68FEEAE8C40D4C23B857EFA6 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ADF134BF2C64AFAB7EFE53A /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
+		AC2B2F58194CA26A00C10183 /* GWEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWEvent.h; sourceTree = "<group>"; };
+		AC2B2F59194CA26A00C10183 /* GWEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWEvent.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,6 +189,8 @@
 				3A9EDBA416DDA0140017C4ED /* Example.xcdatamodeld */,
 				3A9EDBA016DD99E00017C4ED /* MSEvent.h */,
 				3A9EDBA116DD99E00017C4ED /* MSEvent.m */,
+				AC2B2F58194CA26A00C10183 /* GWEvent.h */,
+				AC2B2F59194CA26A00C10183 /* GWEvent.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -303,6 +308,7 @@
 			files = (
 				3A9EDB7D16DD8FF10017C4ED /* main.m in Sources */,
 				3A9EDB8116DD8FF10017C4ED /* MSAppDelegate.m in Sources */,
+				AC2B2F5A194CA26A00C10183 /* GWEvent.m in Sources */,
 				3A9EDB9416DD913A0017C4ED /* MSCalendarViewController.m in Sources */,
 				3A9EDB9916DD938A0017C4ED /* MSGridline.m in Sources */,
 				3A9EDB9C16DD94940017C4ED /* MSTimeRowHeaderBackground.m in Sources */,

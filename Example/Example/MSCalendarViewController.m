@@ -8,7 +8,8 @@
 
 #import "MSCalendarViewController.h"
 #import "MSCollectionViewCalendarLayout.h"
-#import "MSEvent.h"
+//#import "MSEvent.h"
+#import "GWEvent.h"
 // Collection View Reusable Views
 #import "MSGridline.h"
 #import "MSTimeRowHeaderBackground.h"
@@ -23,10 +24,14 @@ NSString * const MSEventCellReuseIdentifier = @"MSEventCellReuseIdentifier";
 NSString * const MSDayColumnHeaderReuseIdentifier = @"MSDayColumnHeaderReuseIdentifier";
 NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifier";
 
-@interface MSCalendarViewController () <MSCollectionViewDelegateCalendarLayout, NSFetchedResultsControllerDelegate>
+@interface MSCalendarViewController () <MSCollectionViewDelegateCalendarLayout, NSFetchedResultsControllerDelegate, UICollectionViewDelegate>
 
 @property (nonatomic, strong) MSCollectionViewCalendarLayout *collectionViewCalendarLayout;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
+
+@property (nonatomic, strong) NSCalendar *calendar;
+@property (nonatomic, strong) NSDate *fromDate;
+@property (nonatomic, strong) NSDate *toDate;
 
 @end
 
@@ -38,6 +43,13 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     self.collectionViewCalendarLayout.delegate = self;
     self = [super initWithCollectionViewLayout:self.collectionViewCalendarLayout];
     return self;
+}
+
+- (void)fixUIForiOS7
+{
+    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+        [self setEdgesForExtendedLayout:UIRectEdgeNone];
+    }
 }
 
 - (void)viewDidLoad
@@ -67,6 +79,34 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     self.fetchedResultsController.delegate = self;
     [self.fetchedResultsController performFetch:nil];
     
+    
+    //Setting up calendar and days
+    _calendar = [NSCalendar currentCalendar];
+    NSDate *now = [_calendar dateFromComponents:[_calendar components:NSYearCalendarUnit|NSMonthCalendarUnit fromDate:[NSDate date]]];
+    
+    _fromDate = [_calendar dateByAddingComponents:((^{
+        NSDateComponents *components = [NSDateComponents new];
+        components.month = -6;
+        return components;
+    })()) toDate:now options:0];
+    
+    _toDate = [_calendar dateByAddingComponents:((^{
+        NSDateComponents *components = [NSDateComponents new];
+        components.month = 6;
+        return components;
+    })()) toDate:now options:0];
+    
+    
+    //Style the NavigationController
+    self.title = @"June";
+    UIBarButtonItem *todayButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Today", @"Today") style:UIBarButtonItemStyleBordered target:self action:@selector(todayButtonTapped:)];
+    [self setToolbarItems:@[todayButton]];
+    [self.navigationController setToolbarHidden:NO];
+    
+    //iOS7 UI
+    [self fixUIForiOS7];
+    
+    //Load the data
     [self loadData];
 }
 
@@ -121,18 +161,52 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return self.fetchedResultsController.sections.count;
+    NSInteger sections = [self.calendar components:NSDayCalendarUnit fromDate:self.fromDate toDate:self.toDate options:0].day;
+    NSLog(@"sections: %d", sections);
+	return sections;
+}
+
+- (NSDate*)dateForSection:(NSInteger)section
+{
+    NSDate *newDate = [self.calendar dateByAddingComponents:((^{
+        NSDateComponents *components = [NSDateComponents new];
+        components.day = section;
+        return components;
+    })()) toDate:self.fromDate options:0];
+    return newDate;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return [(id <NSFetchedResultsSectionInfo>)self.fetchedResultsController.sections[section] numberOfObjects];
+
+    return 1;
+//    NSDate *date = [self dateForSection:section];    
+//    NSInteger index = [self.fetchedResultsController sectionForSectionIndexTitle:[NSString stringWithFormat:@"%@", date] atIndex:0];
+//    return [(id <NSFetchedResultsSectionInfo>)self.fetchedResultsController.sections[index] numberOfObjects];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     MSEventCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:MSEventCellReuseIdentifier forIndexPath:indexPath];
-    cell.event = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    
+//    NSDate *date = [self dateForSection:indexPath.section];
+//    NSInteger index = [self.fetchedResultsController sectionForSectionIndexTitle:[NSString stringWithFormat:@"%@", date] atIndex:0];
+//    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:[NSIndexPath indexPathForRow:indexPath.row inSection:index]];
+//    cell.event = event;
+    
+
+    GWEvent *ev = [[GWEvent alloc] init];
+    ev.start = [self.calendar dateByAddingComponents:((^{
+        NSDateComponents *components = [NSDateComponents new];
+        components.hour = 3;
+        components.minute = 34;
+        return components;
+    })()) toDate:[self dateForSection:indexPath.section] options:0] ;
+    ev.title = @"Some event";
+    ev.timeToBeDecided = @0;
+    ev.location = @"Some location";
+    ev.dateToBeDecided = @0;
+    cell.event = ev;
     return cell;
 }
 
@@ -141,11 +215,18 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     UICollectionReusableView *view;
     if (kind == MSCollectionElementKindDayColumnHeader) {
         MSDayColumnHeader *dayColumnHeader = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:MSDayColumnHeaderReuseIdentifier forIndexPath:indexPath];
-        NSDate *day = [self.collectionViewCalendarLayout dateForDayColumnHeaderAtIndexPath:indexPath];
+//        NSDate *day = [self.collectionViewCalendarLayout dateForDayColumnHeaderAtIndexPath:indexPath];
+        NSDate *day = [self dateForSection:indexPath.section];
         NSDate *currentDay = [self currentTimeComponentsForCollectionView:self.collectionView layout:self.collectionViewCalendarLayout];
         dayColumnHeader.day = day;
         dayColumnHeader.currentDay = [[day beginningOfDay] isEqualToDate:[currentDay beginningOfDay]];
         view = dayColumnHeader;
+        
+        //Also set the title!
+        NSDateFormatter *df = [[NSDateFormatter alloc] init];
+        [df setDateFormat:@"MMM yyyy"];
+        self.title = [df stringFromDate:day];
+        
     } else if (kind == MSCollectionElementKindTimeRowHeader) {
         MSTimeRowHeader *timeRowHeader = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:MSTimeRowHeaderReuseIdentifier forIndexPath:indexPath];
         timeRowHeader.time = [self.collectionViewCalendarLayout dateForTimeRowHeaderAtIndexPath:indexPath];
@@ -158,27 +239,50 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 
 - (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout dayForSection:(NSInteger)section
 {
-    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController.sections objectAtIndex:section];
-    MSEvent *event = [sectionInfo.objects firstObject];
-    return event.day;
+//    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController.sections objectAtIndex:section];
+//    MSEvent *event = [sectionInfo.objects firstObject];
+//    return event.day;
+    
+    NSDate *day = [self dateForSection:section];
+    return day;
+
 }
 
 - (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout startTimeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    return event.start;
+//    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:indexPath];
+//    return event.start;
+    return [self.calendar dateFromComponents:((^{
+        NSDateComponents *components = [NSDateComponents new];
+        components.hour = 3;
+        components.minute = 34;
+        return components;
+    })())];
 }
 
 - (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout endTimeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:indexPath];
+//    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:indexPath];
     // Most sports last ~3 hours, and SeatGeek doesn't provide an end time
-    return [event.start dateByAddingTimeInterval:(60 * 60 * 3)];
+//    return [event.start dateByAddingTimeInterval:(60 * 60 * 3)];
+    return [self.calendar dateFromComponents:((^{
+        NSDateComponents *components = [NSDateComponents new];
+        components.hour = 6;
+        components.minute = 34;
+        return components;
+    })())];
 }
 
 - (NSDate *)currentTimeComponentsForCollectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout
 {
     return [NSDate date];
+}
+
+#pragma mark - Actions
+
+- (void)todayButtonTapped:(id)sender
+{
+    [self.collectionViewCalendarLayout scrollCollectionViewToClosetSectionToCurrentTimeAnimated:YES];
 }
 
 @end
