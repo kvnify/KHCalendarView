@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class GWEvent;
+@class MSEvent;
 
 @interface MSEventCell : UICollectionViewCell
 
-@property (nonatomic, weak) GWEvent *event;
+@property (nonatomic, weak) MSEvent *event;
 
 @property (nonatomic, strong) UILabel *title;
 @property (nonatomic, strong) UILabel *location;

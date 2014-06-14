@@ -7,7 +7,7 @@
 //
 
 #import "MSEventCell.h"
-#import "GWEvent.h"
+#import "MSEvent.h"
 
 @interface MSEventCell ()
 
@@ -98,7 +98,7 @@
 
 #pragma mark - MSEventCell
 
-- (void)setEvent:(GWEvent *)event
+- (void)setEvent:(MSEvent *)event
 {
     _event = event;
     self.title.attributedText = [[NSAttributedString alloc] initWithString:event.title attributes:[self titleAttributesHighlighted:self.selected]];

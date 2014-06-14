@@ -8,8 +8,8 @@
 
 #import "MSCalendarViewController.h"
 #import "MSCollectionViewCalendarLayout.h"
-//#import "MSEvent.h"
-#import "GWEvent.h"
+#import "MSEvent.h"
+//#import "GWEvent.h"
 // Collection View Reusable Views
 #import "MSGridline.h"
 #import "MSTimeRowHeaderBackground.h"
@@ -176,37 +176,50 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     return newDate;
 }
 
+- (NSInteger)sectionForDate:(NSDate*)day
+{
+    NSArray *sections = self.fetchedResultsController.sections;
+    NSInteger index = [sections indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        NSString *sectionName = [[sections objectAtIndex:idx] name];
+        return [sectionName isEqualToString:[NSString stringWithFormat:@"%@",day]];
+    }];
+    return index;
+}
+
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
 
-    return 1;
-//    NSDate *date = [self dateForSection:section];    
-//    NSInteger index = [self.fetchedResultsController sectionForSectionIndexTitle:[NSString stringWithFormat:@"%@", date] atIndex:0];
-//    return [(id <NSFetchedResultsSectionInfo>)self.fetchedResultsController.sections[index] numberOfObjects];
+//    return 1;
+    NSDate *date = [self dateForSection:section];
+    NSInteger index = [self sectionForDate:date];
+    if (index == NSNotFound) {
+        return 0;
+    }
+    return [(id <NSFetchedResultsSectionInfo>)self.fetchedResultsController.sections[index] numberOfObjects];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     MSEventCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:MSEventCellReuseIdentifier forIndexPath:indexPath];
     
-//    NSDate *date = [self dateForSection:indexPath.section];
-//    NSInteger index = [self.fetchedResultsController sectionForSectionIndexTitle:[NSString stringWithFormat:@"%@", date] atIndex:0];
-//    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:[NSIndexPath indexPathForRow:indexPath.row inSection:index]];
-//    cell.event = event;
+    NSDate *date = [self dateForSection:indexPath.section];
+    NSInteger index = [self sectionForDate:date];
+    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:[NSIndexPath indexPathForRow:indexPath.row inSection:index]];
+    cell.event = event;
     
 
-    GWEvent *ev = [[GWEvent alloc] init];
-    ev.start = [self.calendar dateByAddingComponents:((^{
-        NSDateComponents *components = [NSDateComponents new];
-        components.hour = 3;
-        components.minute = 34;
-        return components;
-    })()) toDate:[self dateForSection:indexPath.section] options:0] ;
-    ev.title = @"Some event";
-    ev.timeToBeDecided = @0;
-    ev.location = @"Some location";
-    ev.dateToBeDecided = @0;
-    cell.event = ev;
+//    GWEvent *ev = [[GWEvent alloc] init];
+//    ev.start = [self.calendar dateByAddingComponents:((^{
+//        NSDateComponents *components = [NSDateComponents new];
+//        components.hour = 3;
+//        components.minute = 34;
+//        return components;
+//    })()) toDate:[self dateForSection:indexPath.section] options:0] ;
+//    ev.title = @"Some event";
+//    ev.timeToBeDecided = @0;
+//    ev.location = @"Some location";
+//    ev.dateToBeDecided = @0;
+//    cell.event = ev;
     return cell;
 }
 
