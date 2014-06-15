@@ -239,6 +239,7 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 
 - (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout dayForSection:(NSInteger)section
 {
+    //The CollectionView is not driven by the NSFetchedResultsController sections anymore
 //    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController.sections objectAtIndex:section];
 //    MSEvent *event = [sectionInfo.objects firstObject];
 //    return event.day;
@@ -250,27 +251,17 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 
 - (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout startTimeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-//    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:indexPath];
-//    return event.start;
-    return [self.calendar dateFromComponents:((^{
-        NSDateComponents *components = [NSDateComponents new];
-        components.hour = 3;
-        components.minute = 34;
-        return components;
-    })())];
+    NSIndexPath *eventIndexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:[self sectionForDate:[self dateForSection:indexPath.section]]];
+    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:eventIndexPath];
+    return event.start;
 }
 
 - (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout endTimeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-//    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    NSIndexPath *eventIndexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:[self sectionForDate:[self dateForSection:indexPath.section]]];
+    MSEvent *event = [self.fetchedResultsController objectAtIndexPath:eventIndexPath];
     // Most sports last ~3 hours, and SeatGeek doesn't provide an end time
-//    return [event.start dateByAddingTimeInterval:(60 * 60 * 3)];
-    return [self.calendar dateFromComponents:((^{
-        NSDateComponents *components = [NSDateComponents new];
-        components.hour = 6;
-        components.minute = 34;
-        return components;
-    })())];
+    return [event.start dateByAddingTimeInterval:(60 * 60 * 3)];
 }
 
 - (NSDate *)currentTimeComponentsForCollectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewCalendarLayout
