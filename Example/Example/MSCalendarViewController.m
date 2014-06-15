@@ -9,7 +9,6 @@
 #import "MSCalendarViewController.h"
 #import "MSCollectionViewCalendarLayout.h"
 #import "MSEvent.h"
-//#import "GWEvent.h"
 // Collection View Reusable Views
 #import "MSGridline.h"
 #import "MSTimeRowHeaderBackground.h"
@@ -42,6 +41,7 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     self.collectionViewCalendarLayout = [[MSCollectionViewCalendarLayout alloc] init];
     self.collectionViewCalendarLayout.delegate = self;
     self = [super initWithCollectionViewLayout:self.collectionViewCalendarLayout];
+    
     return self;
 }
 
@@ -86,13 +86,13 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     
     _fromDate = [_calendar dateByAddingComponents:((^{
         NSDateComponents *components = [NSDateComponents new];
-        components.month = -6;
+        components.month = -1;
         return components;
     })()) toDate:now options:0];
     
     _toDate = [_calendar dateByAddingComponents:((^{
         NSDateComponents *components = [NSDateComponents new];
-        components.month = 6;
+        components.month = 1;
         return components;
     })()) toDate:now options:0];
     
@@ -147,6 +147,169 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     } failure:^(RKObjectRequestOperation *operation, NSError *error) {
         [[[UIAlertView alloc] initWithTitle:@"Unable to Load Events" message:[error localizedDescription] delegate:nil cancelButtonTitle:@"Continue" otherButtonTitles:nil] show];
     }];
+}
+
+
+
+
+
+#pragma mark - UIScrollViewDelegate
+
+//Used to create infinite scrolling
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    float rightEdge = scrollView.contentOffset.x + scrollView.frame.size.width;
+    float leftEdge = scrollView.contentOffset.x - scrollView.frame.size.width;
+    if (rightEdge >= scrollView.contentSize.width) {
+        // we are at the end
+        NSLog(@"SCROLLED TO RIGHT");
+		[self appendFutureDates];
+    }
+    if (leftEdge <= 0) {
+        NSLog(@"SCROLLED TO LEFT");
+        [self appendPastDates];
+    }
+}
+
+- (void) appendPastDates {
+    
+	[self shiftDatesByComponents:((^{
+		NSDateComponents *dateComponents = [NSDateComponents new];
+		dateComponents.month = -1;
+		return dateComponents;
+	})())];
+    
+}
+
+- (void) appendFutureDates {
+	
+	[self shiftDatesByComponents:((^{
+		NSDateComponents *dateComponents = [NSDateComponents new];
+		dateComponents.month = 1;
+		return dateComponents;
+	})())];
+	
+}
+
+- (void) shiftDatesByComponents:(NSDateComponents *)components {
+	
+	UICollectionView *cv = self.collectionView;
+
+	MSCollectionViewCalendarLayout *cvLayout = (MSCollectionViewCalendarLayout *)self.collectionView.collectionViewLayout;
+
+	NSArray *visibleCells = [self.collectionView visibleCells];
+	if (![visibleCells count])
+		return;
+
+	NSIndexPath *fromIndexPath = [cv indexPathForCell:((UICollectionViewCell *)visibleCells[0]) ];
+	NSInteger fromSection = fromIndexPath.section;
+	NSDate *fromSectionOfDate = [self dateForFirstDayInSection:fromSection];
+    UICollectionViewLayoutAttributes *fromAttrs = [cvLayout layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:fromSection]];
+	CGPoint fromSectionOrigin = [self.collectionView convertPoint:fromAttrs.frame.origin fromView:cv];
+//
+	_fromDate = [self.calendar dateByAddingComponents:components toDate:self.fromDate options:0];
+	_toDate = [self.calendar dateByAddingComponents:components toDate:self.toDate options:0];
+    
+    
+
+#if 0
+	
+	//	This solution trips up the collection view a bit
+	//	because our reload is reactionary, and happens before a relayout
+	//	since we must do it to avoid flickering and to heckle the CA transaction (?)
+	//	that could be a small red flag too
+	
+	[cv performBatchUpdates:^{
+		
+		if (components.month < 0) {
+			
+			[cv deleteSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
+				cv.numberOfSections - abs(components.month),
+				abs(components.month)
+			}]];
+			
+			[cv insertSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
+				0,
+				abs(components.month)
+			}]];
+			
+		} else {
+			
+			[cv insertSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
+				cv.numberOfSections,
+				abs(components.month)
+			}]];
+			
+			[cv deleteSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
+				0,
+				abs(components.month)
+			}]];
+			
+		}
+		
+	} completion:^(BOOL finished) {
+		
+		NSLog(@"%s %x", __PRETTY_FUNCTION__, finished);
+		
+	}];
+	
+	for (UIView *view in cv.subviews)
+		[view.layer removeAllAnimations];
+	
+#else
+	
+	[cv reloadData];
+	[cvLayout invalidateLayout];
+	[cvLayout prepareLayout];
+    
+#endif
+	
+	NSInteger toSection = [self.calendar components:NSMonthCalendarUnit fromDate:[self dateForFirstDayInSection:0] toDate:fromSectionOfDate options:0].month;
+	UICollectionViewLayoutAttributes *toAttrs = [cvLayout layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:toSection]];
+	CGPoint toSectionOrigin = [self.collectionView convertPoint:toAttrs.frame.origin fromView:cv];
+	
+	[cv setContentOffset:(CGPoint) {
+		cv.contentOffset.x,
+		cv.contentOffset.y + (toSectionOrigin.y - fromSectionOrigin.y)
+	}];
+	
+}
+
+- (NSDate *) dateForFirstDayInSection:(NSInteger)section {
+    
+	return [self.calendar dateByAddingComponents:((^{
+		NSDateComponents *dateComponents = [NSDateComponents new];
+		dateComponents.month = section;
+		return dateComponents;
+	})()) toDate:self.fromDate options:0];
+    
+}
+
+- (NSUInteger) numberOfWeeksForMonthOfDate:(NSDate *)date {
+    
+	NSDate *firstDayInMonth = [self.calendar dateFromComponents:[self.calendar components:NSYearCalendarUnit|NSMonthCalendarUnit fromDate:date]];
+	
+	NSDate *lastDayInMonth = [self.calendar dateByAddingComponents:((^{
+		NSDateComponents *dateComponents = [NSDateComponents new];
+		dateComponents.month = 1;
+		dateComponents.day = -1;
+		return dateComponents;
+	})()) toDate:firstDayInMonth options:0];
+	
+	NSDate *fromSunday = [self.calendar dateFromComponents:((^{
+		NSDateComponents *dateComponents = [self.calendar components:NSWeekOfYearCalendarUnit|NSYearForWeekOfYearCalendarUnit fromDate:firstDayInMonth];
+		dateComponents.weekday = 1;
+		return dateComponents;
+	})())];
+	
+	NSDate *toSunday = [self.calendar dateFromComponents:((^{
+		NSDateComponents *dateComponents = [self.calendar components:NSWeekOfYearCalendarUnit|NSYearForWeekOfYearCalendarUnit fromDate:lastDayInMonth];
+		dateComponents.weekday = 1;
+		return dateComponents;
+	})())];
+	
+	return 1 + [self.calendar components:NSWeekCalendarUnit fromDate:fromSunday toDate:toSunday options:0].week;
+	
 }
 
 #pragma mark - NSFetchedResultsControllerDelegate
