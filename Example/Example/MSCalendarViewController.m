@@ -178,18 +178,19 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 
 - (NSInteger)sectionForDate:(NSDate*)day
 {
-    NSArray *sections = self.fetchedResultsController.sections;
-    NSInteger index = [sections indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        NSString *sectionName = [[sections objectAtIndex:idx] name];
-        return [sectionName isEqualToString:[NSString stringWithFormat:@"%@",day]];
-    }];
-    return index;
+
+    return [[self.fetchedResultsController.sections valueForKey:@"name"] indexOfObject:[NSString stringWithFormat:@"%@", day]];
+
+// Another way
+//    NSInteger index = [self.fetchedResultsController.sections indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+//        NSString *sectionName = [[self.fetchedResultsController.sections objectAtIndex:idx] name];
+//        return [sectionName isEqualToString:[NSString stringWithFormat:@"%@",day]];
+//    }];
+//    return index;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-
-//    return 1;
     NSDate *date = [self dateForSection:section];
     NSInteger index = [self sectionForDate:date];
     if (index == NSNotFound) {
@@ -206,20 +207,6 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     NSInteger index = [self sectionForDate:date];
     MSEvent *event = [self.fetchedResultsController objectAtIndexPath:[NSIndexPath indexPathForRow:indexPath.row inSection:index]];
     cell.event = event;
-    
-
-//    GWEvent *ev = [[GWEvent alloc] init];
-//    ev.start = [self.calendar dateByAddingComponents:((^{
-//        NSDateComponents *components = [NSDateComponents new];
-//        components.hour = 3;
-//        components.minute = 34;
-//        return components;
-//    })()) toDate:[self dateForSection:indexPath.section] options:0] ;
-//    ev.title = @"Some event";
-//    ev.timeToBeDecided = @0;
-//    ev.location = @"Some location";
-//    ev.dateToBeDecided = @0;
-//    cell.event = ev;
     return cell;
 }
 
