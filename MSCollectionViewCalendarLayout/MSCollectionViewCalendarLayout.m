@@ -1111,13 +1111,16 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     if (self.cachedEarliestHour != NSIntegerMax) {
         return self.cachedEarliestHour;
     }
-    NSInteger earliestHour = NSIntegerMax;
-    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
-        CGFloat sectionEarliestHour = [self earliestHourForSection:section];
-        if ((sectionEarliestHour < earliestHour) && (sectionEarliestHour != NSUndefinedDateComponent)) {
-            earliestHour = sectionEarliestHour;
-        }
-    }
+//    NSInteger earliestHour = NSIntegerMax;
+//    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
+//        CGFloat sectionEarliestHour = [self earliestHourForSection:section];
+//        if ((sectionEarliestHour < earliestHour) && (sectionEarliestHour != NSUndefinedDateComponent)) {
+//            earliestHour = sectionEarliestHour;
+//        }
+//    }
+    
+    //Always make the day start at 12 AM (00:00)
+    NSInteger earliestHour = 0;
     if (earliestHour != NSIntegerMax) {
         self.cachedEarliestHour = earliestHour;
         return earliestHour;
@@ -1131,13 +1134,15 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     if (self.cachedLatestHour != NSIntegerMin) {
         return self.cachedLatestHour;
     }
-    NSInteger latestHour = NSIntegerMin;
-    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
-        CGFloat sectionLatestHour = [self latestHourForSection:section];
-        if ((sectionLatestHour > latestHour) && (sectionLatestHour != NSUndefinedDateComponent)) {
-            latestHour = sectionLatestHour;
-        }
-    }
+//    NSInteger latestHour = NSIntegerMin;
+//    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
+//        CGFloat sectionLatestHour = [self latestHourForSection:section];
+//        if ((sectionLatestHour > latestHour) && (sectionLatestHour != NSUndefinedDateComponent)) {
+//            latestHour = sectionLatestHour;
+//        }
+//    }
+    //Always make the day end at 12 PM (24:00)
+    NSInteger latestHour = 24;
     if (latestHour != NSIntegerMin) {
         self.cachedLatestHour = latestHour;
         return latestHour;
