@@ -153,21 +153,6 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 
 //Used to create infinite scrolling
 
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
-{
-//    float rightEdge = scrollView.contentOffset.x + scrollView.frame.size.width;
-//    float leftEdge = scrollView.contentOffset.x - scrollView.frame.size.width;
-//    if (rightEdge >= scrollView.contentSize.width) {
-//        // we are at the end
-//        NSLog(@"WILL BEGIN SCROLLING TO RIGHT");
-//        [self appendFutureDates];
-//    }
-//    if (leftEdge <= 0) {
-//        NSLog(@"WILL BEGIN SCROLLING TO LEFT");
-//        [self appendPastDates];
-//    }
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     float rightEdge = scrollView.contentOffset.x + scrollView.frame.size.width;
@@ -180,20 +165,6 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     if (leftEdge <= 0) {
         NSLog(@"DID SCROLL TO LEFT");
         [self appendPastDates];
-    }
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    float rightEdge = scrollView.contentOffset.x + scrollView.frame.size.width;
-    float leftEdge = scrollView.contentOffset.x - scrollView.frame.size.width;
-    if (rightEdge >= scrollView.contentSize.width) {
-        // we are at the end
-        NSLog(@"END DECEL TO RIGHT");
-
-    }
-    if (leftEdge <= 0) {
-        NSLog(@"END DECEL TO LEFT");
-
     }
 }
 
@@ -228,128 +199,15 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     _fromDate = [self.calendar dateByAddingComponents:components toDate:self.fromDate options:0];
 	_toDate = [self.calendar dateByAddingComponents:components toDate:self.toDate options:0];
     
-
-
     [cv reloadData];
     [cvLayout invalidateLayoutCache];
     
-//
-//    NSRange daysToRemove;
-//    NSRange daysToAdd;
     if (components.month > 0) {
-////        //we are going in the future
-//        NSCalendar *c = [NSCalendar currentCalendar];
-//        _toDate = [self.calendar dateByAddingComponents:components toDate:self.toDate options:0];
-////        
-//        daysToAdd = [c rangeOfUnit:NSDayCalendarUnit
-//                               inUnit:NSMonthCalendarUnit
-//                              forDate:[_toDate beginningOfMonth]];
-//        daysToRemove = [c rangeOfUnit:NSDayCalendarUnit
-//                            inUnit:NSMonthCalendarUnit
-//                           forDate:[oldFromDate beginningOfMonth]];
-//
-        
-//        NSIndexPath *indexpath = [NSIndexPath indexPathForItem:0 inSection:[cvLayout closestSectionToDate:oldToDate]];
-////
-////
-//        [cv scrollToItemAtIndexPath:indexpath atScrollPosition:UICollectionViewScrollPositionLeft animated:YES];
         [cvLayout scrollCollectionViewToClosetSectionToDate:oldToDate animated:NO];
     }
     else{
-////        //We are going in the past
-////        NSIndexPath *indexpath = [NSIndexPath indexPathForItem:0 inSection:[cvLayout closestSectionToDate:oldFromDate]];
-////        
-////        [cv scrollToItemAtIndexPath:indexpath atScrollPosition:UICollectionViewScrollPositionRight animated:YES];
-////
-//        NSCalendar *c = [NSCalendar currentCalendar];
-//        daysToAdd = [c rangeOfUnit:NSDayCalendarUnit
-//                            inUnit:NSMonthCalendarUnit
-//                           forDate:[_fromDate beginningOfMonth]];
-//        daysToRemove = [c rangeOfUnit:NSDayCalendarUnit
-//                               inUnit:NSMonthCalendarUnit
-//                              forDate:[oldToDate beginningOfMonth]];
-////        days = [c rangeOfUnit:NSDayCalendarUnit
-////                               inUnit:NSMonthCalendarUnit
-////                              forDate:oldFromDate];
-    [cvLayout scrollCollectionViewToClosetSectionToDate:oldFromDate animated:NO];
+        [cvLayout scrollCollectionViewToClosetSectionToDate:oldFromDate animated:NO];
     }
-//
-
-//	NSArray *visibleCells = [self.collectionView visibleCells];
-//	if (![visibleCells count])
-//		return;
-//
-//	NSIndexPath *fromIndexPath = [cv indexPathForCell:((UICollectionViewCell *)visibleCells[0]) ];
-//	NSInteger fromSection = fromIndexPath.section;
-//	NSDate *fromSectionOfDate = [self dateForFirstDayInSection:fromSection];
-//    UICollectionViewLayoutAttributes *fromAttrs = [cvLayout layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:fromSection]];
-//	CGPoint fromSectionOrigin = [self.collectionView convertPoint:fromAttrs.frame.origin fromView:cv];
-////
-//    
-//    
-//
-//#if 0
-//	
-//	//	This solution trips up the collection view a bit
-//	//	because our reload is reactionary, and happens before a relayout
-//	//	since we must do it to avoid flickering and to heckle the CA transaction (?)
-//	//	that could be a small red flag too
-//	
-//	[cv performBatchUpdates:^{
-//		
-//		if (components.month < 0) {
-//			
-//			[cv deleteSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
-//				cv.numberOfSections - daysToRemove.length,
-//                daysToRemove.length
-//			}]];
-//			
-//			[cv insertSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
-//				0,
-//                daysToAdd.length
-//			}]];
-//			
-//		} else {
-//			
-//			[cv insertSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
-//				cv.numberOfSections,
-//				daysToRemove.length
-//			}]];
-//			
-//			[cv deleteSections:[NSIndexSet indexSetWithIndexesInRange:(NSRange){
-//				0,
-//				daysToAdd.length
-//			}]];
-//			
-//		}
-//
-//	} completion:^(BOOL finished) {
-		
-        [cv reloadData];
-//		NSLog(@"%s %x", __PRETTY_FUNCTION__, finished);
-//		
-//	}];
-//
-	for (UIView *view in cv.subviews)
-		[view.layer removeAllAnimations];
-//
-//#else
-//	
-	[cv reloadData];
-	[cvLayout invalidateLayout];
-	[cvLayout prepareLayout];
-//
-//#endif
-//	
-//	NSInteger toSection = [self.calendar components:NSMonthCalendarUnit fromDate:[self dateForFirstDayInSection:0] toDate:fromSectionOfDate options:0].month;
-//	UICollectionViewLayoutAttributes *toAttrs = [cvLayout layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:toSection]];
-//	CGPoint toSectionOrigin = [self.collectionView convertPoint:toAttrs.frame.origin fromView:cv];
-//	
-//	[cv setContentOffset:(CGPoint) {
-//		cv.contentOffset.x,
-//		cv.contentOffset.y + (toSectionOrigin.y - fromSectionOrigin.y)
-//	}];
-	
 }
 
 - (NSDate *) dateForFirstDayInSection:(NSInteger)section {

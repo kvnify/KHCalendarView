@@ -922,18 +922,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
 {
     NSDate *currentDate = [[self.delegate currentTimeComponentsForCollectionView:self.collectionView layout:self] beginningOfDay];
     return [self closestSectionToDate:currentDate];
-//    NSDate *currentDate = [[self.delegate currentTimeComponentsForCollectionView:self.collectionView layout:self] beginningOfDay];
-//    NSTimeInterval minTimeInterval = CGFLOAT_MAX;
-//    NSInteger closestSection = NSIntegerMax;
-//    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
-//        NSDate *sectionDayDate = [self.delegate collectionView:self.collectionView layout:self dayForSection:section];
-//        NSTimeInterval timeInterval = [currentDate timeIntervalSinceDate:sectionDayDate];
-//        if ((timeInterval <= 0) && abs(timeInterval) < minTimeInterval) {
-//            minTimeInterval = abs(timeInterval);
-//            closestSection = section;
-//        }
-//    }
-//    return ((closestSection != NSIntegerMax) ? closestSection : 0);
 }
 
 #pragma mark Section Sizing
