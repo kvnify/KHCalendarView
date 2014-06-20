@@ -58,6 +58,10 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     
     self.collectionView.backgroundColor = [UIColor whiteColor];
     
+    UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressOnBackground:)];
+    self.collectionView.delaysContentTouches = YES;
+    [self.collectionView addGestureRecognizer:longPressRecognizer];
+    
     [self.collectionView registerClass:MSEventCell.class forCellWithReuseIdentifier:MSEventCellReuseIdentifier];
     [self.collectionView registerClass:MSDayColumnHeader.class forSupplementaryViewOfKind:MSCollectionElementKindDayColumnHeader withReuseIdentifier:MSDayColumnHeaderReuseIdentifier];
     [self.collectionView registerClass:MSTimeRowHeader.class forSupplementaryViewOfKind:MSCollectionElementKindTimeRowHeader withReuseIdentifier:MSTimeRowHeaderReuseIdentifier];
@@ -312,6 +316,7 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 {
     UICollectionReusableView *view;
     if (kind == MSCollectionElementKindDayColumnHeader) {
+        //TODO: this is a good place for storing the date in a global object
         MSDayColumnHeader *dayColumnHeader = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:MSDayColumnHeaderReuseIdentifier forIndexPath:indexPath];
 //        NSDate *day = [self.collectionViewCalendarLayout dateForDayColumnHeaderAtIndexPath:indexPath];
         NSDate *day = [self dateForSection:indexPath.section];
@@ -331,6 +336,13 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
         view = timeRowHeader;
     }
     return view;
+}
+
+#pragma mark - MSCollectionView Delegate
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"Selected item");
 }
 
 #pragma mark - MSCollectionViewCalendarLayout
@@ -372,6 +384,23 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 - (void)todayButtonTapped:(id)sender
 {
     [self.collectionViewCalendarLayout scrollCollectionViewToClosetSectionToCurrentTimeAnimated:YES];
+}
+
+- (void)longPressOnBackground:(id)sender
+{
+    MSCollectionViewCalendarLayout *cvLayout = (MSCollectionViewCalendarLayout *)self.collectionViewLayout;
+    NSLog(@"Long press!");
+    CGPoint tappedPoint = [sender locationInView:self.collectionView];
+    NSIndexPath *tappedCellPath = [self.collectionView indexPathForItemAtPoint:tappedPoint];
+    if (tappedCellPath)
+    {
+        NSLog(@"Tapped on item at indexpath: %@", tappedCellPath);
+    }
+    else{
+        NSDate *date = [cvLayout dateForPoint:tappedPoint];
+        NSLog(@"Create new appointment with date: %@", date);
+    }
+
 }
 
 @end

@@ -71,6 +71,7 @@ typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
 
 - (NSDate *)dateForTimeRowHeaderAtIndexPath:(NSIndexPath *)indexPath;
 - (NSDate *)dateForDayColumnHeaderAtIndexPath:(NSIndexPath *)indexPath;
+- (NSDate *)dateForPoint:(CGPoint)point;
 
 - (void)scrollCollectionViewToClosetSectionToCurrentTimeAnimated:(BOOL)animated;
 - (void)scrollCollectionViewToClosetSectionToDate:(NSDate*)date animated:(BOOL)animated;

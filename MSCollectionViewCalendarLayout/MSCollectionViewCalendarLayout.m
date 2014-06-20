@@ -854,6 +854,32 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     return [[self.delegate collectionView:self.collectionView layout:self dayForSection:indexPath.section] beginningOfDay];
 }
 
+- (NSDate *)dateForPoint:(CGPoint)point
+{
+    //Calculations for date are reversed starting from the calculations in method
+    // - (void)prepareHorizontalTileSectionLayoutForSections:(NSIndexSet *)sectionIndexes
+    NSInteger startTimeHour;
+    NSInteger startTimeMinute;
+    NSInteger earliestHour = [self earliestHour];
+    startTimeHour = lroundf((point.y / self.hourHeight) + earliestHour);
+    startTimeMinute = lroundf(fmodf((point.y / self.minuteHeight), 60.0));
+    
+    CGFloat calendarContentMinX = (self.timeRowHeaderWidth + self.contentMargin.left + self.sectionMargin.left);
+    CGFloat sectionWidth = (self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right);
+    NSInteger section = floorf  (((point.x - calendarContentMinX) / sectionWidth));
+    NSDate *day = [self.delegate collectionView:self.collectionView layout:self dayForSection:section];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *dayComponents = [calendar components:(NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:day];
+
+    return [calendar dateFromComponents:((^{ NSDateComponents *c = [[NSDateComponents alloc] init];
+        [c setMinute:startTimeMinute];
+        [c setHour:startTimeHour];
+        [c setYear:dayComponents.year];
+        [c setMonth:dayComponents.month];
+        [c setDay:dayComponents.day];
+        return c;})())];
+}
+
 #pragma mark Scrolling
 
 - (void)scrollCollectionViewToClosetSectionToCurrentTimeAnimated:(BOOL)animated
