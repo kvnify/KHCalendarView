@@ -374,8 +374,9 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
                 CGFloat itemMaxY = nearbyintf(endHourY + endMinuteY + calendarContentMinY - self.cellMargin.bottom);
                 CGFloat itemMinX = nearbyintf(sectionMinX + self.cellMargin.left);
                 CGFloat itemMaxX = nearbyintf(itemMinX + (self.sectionWidth - (self.cellMargin.left + self.cellMargin.right)));
-                itemAttributes.frame = CGRectMake(itemMinX, itemMinY, (itemMaxX - itemMinX), (itemMaxY - itemMinY));
-                
+				CGFloat frameHeight = (itemMaxY - itemMinY);
+				itemAttributes.frame = CGRectMake(itemMinX, itemMinY, (itemMaxX - itemMinX), frameHeight == 0? self.minimumItemHeight : frameHeight);
+				
                 itemAttributes.zIndex = [self zIndexForElementKind:nil];
             }
             [self adjustItemsForOverlap:sectionItemAttributes inSection:section sectionMinX:sectionMinX];
@@ -733,9 +734,11 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     self.horizontalGridlineAttributes = [NSMutableDictionary new];
     self.currentTimeIndicatorAttributes = [NSMutableDictionary new];
     self.currentTimeHorizontalGridlineAttributes = [NSMutableDictionary new];
-    
+	
+	self.display24hours = YES;
     self.hourHeight = ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 80.0 : 80.0);
     self.sectionWidth = 150; //194; // ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 194 : 254.0);
+	self.minimumItemHeight = 30.0;
     self.dayColumnHeaderHeight = ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 60.0 : 44.0);
     self.timeRowHeaderWidth = 56.0;
     self.currentTimeIndicatorSize = CGSizeMake(self.timeRowHeaderWidth, 10.0);
@@ -980,16 +983,21 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     }
     CGFloat maxSectionHeight = 0.0;
     for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
-        
-        NSInteger earliestHour = [self earliestHour];
-        NSInteger latestHour = [self latestHourForSection:section];
-        CGFloat sectionColumnHeight;
-        if ((earliestHour != NSUndefinedDateComponent) && (latestHour != NSUndefinedDateComponent)) {
-            sectionColumnHeight = (self.hourHeight * (latestHour - earliestHour));
-        } else {
-            sectionColumnHeight = 0.0;
-        }
-        
+		
+		CGFloat sectionColumnHeight = 0.0;
+		if (self.display24hours == YES) {
+			sectionColumnHeight = (self.hourHeight * 24); //Always show 24 hours
+		}
+		else{
+			NSInteger earliestHour = [self earliestHour];
+			NSInteger latestHour = [self latestHourForSection:section];
+			CGFloat sectionColumnHeight;
+			if ((earliestHour != NSUndefinedDateComponent) && (latestHour != NSUndefinedDateComponent)) {
+				sectionColumnHeight = (self.hourHeight * (latestHour - earliestHour));
+			} else {
+				sectionColumnHeight = 0.0;
+			}
+		}
         if (sectionColumnHeight > maxSectionHeight) {
             maxSectionHeight = sectionColumnHeight;
         }
