@@ -866,6 +866,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     NSInteger earliestHour = [self earliestHour];
     startTimeHour = lroundf((point.y / self.hourHeight) + earliestHour);
     startTimeMinute = lroundf(fmodf((point.y / self.minuteHeight), 60.0));
+	startTimeMinute = round(startTimeMinute/5) * 5; //Round 5 minutes
     
     CGFloat calendarContentMinX = (self.timeRowHeaderWidth + self.contentMargin.left + self.sectionMargin.left);
     CGFloat sectionWidth = (self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right);
