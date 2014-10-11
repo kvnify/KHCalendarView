@@ -32,6 +32,8 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 @property (nonatomic, strong) NSDate *fromDate;
 @property (nonatomic, strong) NSDate *toDate;
 
+- (void)setupDates;
+
 @end
 
 @implementation MSCalendarViewController
@@ -83,7 +85,23 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     self.fetchedResultsController.delegate = self;
     [self.fetchedResultsController performFetch:nil];
     
+    [self setupDates];
     
+    //Style the NavigationController
+    self.title = @"June";
+    UIBarButtonItem *todayButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Today", @"Today") style:UIBarButtonItemStyleBordered target:self action:@selector(todayButtonTapped:)];
+    [self setToolbarItems:@[todayButton]];
+    [self.navigationController setToolbarHidden:NO];
+    
+    //iOS7 UI
+    [self fixUIForiOS7];
+    
+    //Load the data
+    [self loadData];
+}
+
+- (void)setupDates
+{
     //Setting up calendar and days
     _calendar = [NSCalendar currentCalendar];
     NSDate *now = [_calendar dateFromComponents:[_calendar components:NSYearCalendarUnit|NSMonthCalendarUnit fromDate:[NSDate date]]];
@@ -99,19 +117,6 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
         components.month = 1;
         return components;
     })()) toDate:now options:0];
-    
-    
-    //Style the NavigationController
-    self.title = @"June";
-    UIBarButtonItem *todayButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Today", @"Today") style:UIBarButtonItemStyleBordered target:self action:@selector(todayButtonTapped:)];
-    [self setToolbarItems:@[todayButton]];
-    [self.navigationController setToolbarHidden:NO];
-    
-    //iOS7 UI
-    [self fixUIForiOS7];
-    
-    //Load the data
-    [self loadData];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -224,33 +229,6 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     
 }
 
-- (NSUInteger) numberOfWeeksForMonthOfDate:(NSDate *)date {
-    
-	NSDate *firstDayInMonth = [self.calendar dateFromComponents:[self.calendar components:NSYearCalendarUnit|NSMonthCalendarUnit fromDate:date]];
-	
-	NSDate *lastDayInMonth = [self.calendar dateByAddingComponents:((^{
-		NSDateComponents *dateComponents = [NSDateComponents new];
-		dateComponents.month = 1;
-		dateComponents.day = -1;
-		return dateComponents;
-	})()) toDate:firstDayInMonth options:0];
-	
-	NSDate *fromSunday = [self.calendar dateFromComponents:((^{
-		NSDateComponents *dateComponents = [self.calendar components:NSWeekOfYearCalendarUnit|NSYearForWeekOfYearCalendarUnit fromDate:firstDayInMonth];
-		dateComponents.weekday = 1;
-		return dateComponents;
-	})())];
-	
-	NSDate *toSunday = [self.calendar dateFromComponents:((^{
-		NSDateComponents *dateComponents = [self.calendar components:NSWeekOfYearCalendarUnit|NSYearForWeekOfYearCalendarUnit fromDate:lastDayInMonth];
-		dateComponents.weekday = 1;
-		return dateComponents;
-	})())];
-	
-	return 1 + [self.calendar components:NSWeekCalendarUnit fromDate:fromSunday toDate:toSunday options:0].week;
-	
-}
-
 #pragma mark - NSFetchedResultsControllerDelegate
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
@@ -264,7 +242,7 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
     NSInteger sections = [self.calendar components:NSDayCalendarUnit fromDate:self.fromDate toDate:self.toDate options:0].day;
-    NSLog(@"sections: %d", sections);
+    NSLog(@"sections: %ld", (long)sections);
 	return sections;
 }
 
@@ -383,24 +361,32 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
 
 - (void)todayButtonTapped:(id)sender
 {
+    NSDate *today = [_calendar dateFromComponents:[_calendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:[NSDate date]]];
+    if ([_fromDate timeIntervalSinceDate:today] <= 0 && [_toDate timeIntervalSinceDate:today] >=0 ) {
+        //Today is between _fromDate and _toDate, it's ok to scroll to closest section
+    }
+    else{
+        [self setupDates];
+    }
     [self.collectionViewCalendarLayout scrollCollectionViewToClosetSectionToCurrentTimeAnimated:YES];
 }
 
-- (void)longPressOnBackground:(id)sender
+- (void)longPressOnBackground:(UILongPressGestureRecognizer*)sender
 {
-    MSCollectionViewCalendarLayout *cvLayout = (MSCollectionViewCalendarLayout *)self.collectionViewLayout;
-    NSLog(@"Long press!");
-    CGPoint tappedPoint = [sender locationInView:self.collectionView];
-    NSIndexPath *tappedCellPath = [self.collectionView indexPathForItemAtPoint:tappedPoint];
-    if (tappedCellPath)
-    {
-        NSLog(@"Tapped on item at indexpath: %@", tappedCellPath);
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        MSCollectionViewCalendarLayout *cvLayout = (MSCollectionViewCalendarLayout *)self.collectionViewLayout;
+        NSLog(@"Long press!");
+        CGPoint tappedPoint = [sender locationInView:self.collectionView];
+        NSIndexPath *tappedCellPath = [self.collectionView indexPathForItemAtPoint:tappedPoint];
+        if (tappedCellPath)
+        {
+            NSLog(@"Tapped on item at indexpath: %@", tappedCellPath);
+        }
+        else{
+            NSDate *date = [cvLayout dateForPoint:tappedPoint];
+            NSLog(@"Create new appointment with date: %@", date);
+        }
     }
-    else{
-        NSDate *date = [cvLayout dateForPoint:tappedPoint];
-        NSLog(@"Create new appointment with date: %@", date);
-    }
-
 }
 
 @end
