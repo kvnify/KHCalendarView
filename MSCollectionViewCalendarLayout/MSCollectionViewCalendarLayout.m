@@ -733,7 +733,8 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     self.horizontalGridlineAttributes = [NSMutableDictionary new];
     self.currentTimeIndicatorAttributes = [NSMutableDictionary new];
     self.currentTimeHorizontalGridlineAttributes = [NSMutableDictionary new];
-    
+	
+	self.display24hours = YES;
     self.hourHeight = ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 80.0 : 80.0);
     self.sectionWidth = 150; //194; // ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 194 : 254.0);
     self.dayColumnHeaderHeight = ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? 60.0 : 44.0);
@@ -975,32 +976,37 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
 
 - (CGFloat)maxSectionHeight
 {
-    if (self.cachedMaxColumnHeight != CGFLOAT_MIN) {
-        return self.cachedMaxColumnHeight;
-    }
-    CGFloat maxSectionHeight = 0.0;
-    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
-        
-        NSInteger earliestHour = [self earliestHour];
-        NSInteger latestHour = [self latestHourForSection:section];
-        CGFloat sectionColumnHeight;
-        if ((earliestHour != NSUndefinedDateComponent) && (latestHour != NSUndefinedDateComponent)) {
-            sectionColumnHeight = (self.hourHeight * (latestHour - earliestHour));
-        } else {
-            sectionColumnHeight = 0.0;
-        }
-        
-        if (sectionColumnHeight > maxSectionHeight) {
-            maxSectionHeight = sectionColumnHeight;
-        }
-    }
-    CGFloat headerAdjustedMaxColumnHeight = (self.dayColumnHeaderHeight + self.contentMargin.top + self.sectionMargin.top + maxSectionHeight + self.sectionMargin.bottom + self.contentMargin.bottom);
-    if (maxSectionHeight != 0.0) {
-        self.cachedMaxColumnHeight = headerAdjustedMaxColumnHeight;
-        return headerAdjustedMaxColumnHeight;
-    } else {
-        return headerAdjustedMaxColumnHeight;
-    }
+	if (self.cachedMaxColumnHeight != CGFLOAT_MIN) {
+		return self.cachedMaxColumnHeight;
+	}
+	CGFloat maxSectionHeight = 0.0;
+	for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
+		
+		CGFloat sectionColumnHeight = 0.0;
+		if (self.display24hours == YES) {
+			sectionColumnHeight = (self.hourHeight * 24); //Always show 24 hours
+		}
+		else{
+			NSInteger earliestHour = [self earliestHour];
+			NSInteger latestHour = [self latestHourForSection:section];
+			CGFloat sectionColumnHeight;
+			if ((earliestHour != NSUndefinedDateComponent) && (latestHour != NSUndefinedDateComponent)) {
+				sectionColumnHeight = (self.hourHeight * (latestHour - earliestHour));
+			} else {
+				sectionColumnHeight = 0.0;
+			}
+		}
+		if (sectionColumnHeight > maxSectionHeight) {
+			maxSectionHeight = sectionColumnHeight;
+		}
+	}
+	CGFloat headerAdjustedMaxColumnHeight = (self.dayColumnHeaderHeight + self.contentMargin.top + self.sectionMargin.top + maxSectionHeight + self.sectionMargin.bottom + self.contentMargin.bottom);
+	if (maxSectionHeight != 0.0) {
+		self.cachedMaxColumnHeight = headerAdjustedMaxColumnHeight;
+		return headerAdjustedMaxColumnHeight;
+	} else {
+		return headerAdjustedMaxColumnHeight;
+	}
 }
 
 - (CGFloat)stackedSectionHeight
