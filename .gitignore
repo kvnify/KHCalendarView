@@ -22,7 +22,7 @@ build/
 *.dat
 *.dep
 # Cocoapods
-Pods
+**Pods
 # AppCode specific files
 .idea/
 *.iml
