@@ -864,10 +864,12 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     NSInteger startTimeHour;
     NSInteger startTimeMinute;
     NSInteger earliestHour = [self earliestHour];
-    startTimeHour = lroundf((point.y / self.hourHeight) + earliestHour);
+	
+	CGFloat calendarContentMinY = (self.dayColumnHeaderHeight + self.contentMargin.top + self.sectionMargin.top);
+	startTimeHour = lroundf(((point.y - calendarContentMinY ) / self.hourHeight)) + earliestHour;
     startTimeMinute = lroundf(fmodf((point.y / self.minuteHeight), 60.0));
 	startTimeMinute = round(startTimeMinute/5) * 5; //Round 5 minutes
-    
+
     CGFloat calendarContentMinX = (self.timeRowHeaderWidth + self.contentMargin.left + self.sectionMargin.left);
     CGFloat sectionWidth = (self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right);
     NSInteger section = floorf  (((point.x - calendarContentMinX) / sectionWidth));
@@ -881,6 +883,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         [c setYear:dayComponents.year];
         [c setMonth:dayComponents.month];
         [c setDay:dayComponents.day];
+		[c setTimeZone:[NSTimeZone localTimeZone]];
         return c;})())];
 }
 
