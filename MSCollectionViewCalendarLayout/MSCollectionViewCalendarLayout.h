@@ -54,7 +54,9 @@ typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
 
 @property (nonatomic, weak) id <MSCollectionViewDelegateCalendarLayout> delegate;
 
+@property (nonatomic, assign) BOOL display24hours;
 @property (nonatomic, assign) CGFloat sectionWidth;
+@property (nonatomic, assign) CGFloat minimumItemHeight;
 @property (nonatomic, assign) CGFloat hourHeight;
 @property (nonatomic, assign) CGFloat dayColumnHeaderHeight;
 @property (nonatomic, assign) CGFloat timeRowHeaderWidth;
@@ -71,8 +73,11 @@ typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
 
 - (NSDate *)dateForTimeRowHeaderAtIndexPath:(NSIndexPath *)indexPath;
 - (NSDate *)dateForDayColumnHeaderAtIndexPath:(NSIndexPath *)indexPath;
+- (NSDate *)dateForPoint:(CGPoint)point;
 
 - (void)scrollCollectionViewToClosetSectionToCurrentTimeAnimated:(BOOL)animated;
+- (void)scrollCollectionViewToClosetSectionToDate:(NSDate*)date animated:(BOOL)animated;
+- (NSInteger)closestSectionToDate:(NSDate*)date;
 
 // Since a "reloadData" on the UICollectionView doesn't call "prepareForCollectionViewUpdates:", this method must be called first to flush the internal caches
 - (void)invalidateLayoutCache;
