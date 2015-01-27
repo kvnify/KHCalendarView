@@ -257,7 +257,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     CGFloat calendarGridWidth = (self.collectionViewContentSize.width - self.timeRowHeaderWidth - self.contentMargin.right);
     
     // Time Row Header
-    CGFloat timeRowHeaderMinX = fmaxf(self.collectionView.contentOffset.x, 0.0);
+    CGFloat timeRowHeaderMinX = self.collectionView.contentOffset.x; //fmaxf(self.collectionView.contentOffset.x, 0.0);
     BOOL timeRowHeaderFloating = ((timeRowHeaderMinX != 0) || self.displayHeaderBackgroundAtOrigin);
     
     // Time Row Header Background
@@ -306,15 +306,16 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     }
 
     // Day Column Header
-    CGFloat dayColumnHeaderMinY = fmaxf(self.collectionView.contentOffset.y, 0.0);
+    CGFloat dayColumnHeaderMinY = self.collectionView.contentOffset.y;
     BOOL dayColumnHeaderFloating = ((dayColumnHeaderMinY != 0) || self.displayHeaderBackgroundAtOrigin);
     
     // Day Column Header Background
     NSIndexPath *dayColumnHeaderBackgroundIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
     UICollectionViewLayoutAttributes *dayColumnHeaderBackgroundAttributes = [self layoutAttributesForDecorationViewAtIndexPath:dayColumnHeaderBackgroundIndexPath ofKind:MSCollectionElementKindDayColumnHeaderBackground withItemCache:self.dayColumnHeaderBackgroundAttributes];
     // Frame
-    CGFloat dayColumnHeaderBackgroundHeight = (self.dayColumnHeaderHeight + ((self.collectionView.contentOffset.y < 0.0) ? fabsf(self.collectionView.contentOffset.y) : 0.0));
-    dayColumnHeaderBackgroundAttributes.frame = (CGRect){self.collectionView.contentOffset, {self.collectionView.frame.size.width, dayColumnHeaderBackgroundHeight}};
+    CGFloat dayColumnHeaderBackgroundHeight = (self.dayColumnHeaderHeight); //+ ((self.collectionView.contentOffset.y < 0.0) ? fabsf(self.collectionView.contentOffset.y) : 0.0));
+    //dayColumnHeaderBackgroundAttributes.frame = (CGRect){self.collectionView.contentOffset, {self.collectionView.frame.size.width, dayColumnHeaderBackgroundHeight}};
+    dayColumnHeaderBackgroundAttributes.frame = CGRectMake(self.collectionView.contentOffset.x, self.collectionView.contentOffset.y, self.collectionView.frame.size.width, dayColumnHeaderBackgroundHeight);
     // Floating
     dayColumnHeaderBackgroundAttributes.hidden = !dayColumnHeaderFloating;
     dayColumnHeaderBackgroundAttributes.zIndex = [self zIndexForElementKind:MSCollectionElementKindDayColumnHeaderBackground floating:dayColumnHeaderFloating];
@@ -342,9 +343,11 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         if (needsToPopulateVerticalGridlineAttributes) {
             // Vertical Gridline
             NSIndexPath *verticalGridlineIndexPath = [NSIndexPath indexPathForItem:0 inSection:section];
-            UICollectionViewLayoutAttributes *horizontalGridlineAttributes = [self layoutAttributesForDecorationViewAtIndexPath:verticalGridlineIndexPath ofKind:MSCollectionElementKindVerticalGridline withItemCache:self.verticalGridlineAttributes];
-            CGFloat horizontalGridlineMinX = nearbyintf(sectionMinX - self.sectionMargin.left - (self.verticalGridlineWidth / 2.0));
-            horizontalGridlineAttributes.frame = CGRectMake(horizontalGridlineMinX, calendarGridMinY, self.verticalGridlineWidth, sectionHeight);
+            UICollectionViewLayoutAttributes *verticalGridlineAttributes = [self layoutAttributesForDecorationViewAtIndexPath:verticalGridlineIndexPath
+                                                                                                                         ofKind:MSCollectionElementKindVerticalGridline
+                                                                                                                  withItemCache:self.verticalGridlineAttributes];
+            CGFloat verticalGridlineMinX = nearbyintf(sectionMinX - self.sectionMargin.left - (self.verticalGridlineWidth / 2.0));
+            verticalGridlineAttributes.frame = CGRectMake(verticalGridlineMinX, calendarGridMinY, self.verticalGridlineWidth, sectionHeight);
         }
         
         if (needsToPopulateItemAttributes) {
@@ -387,11 +390,12 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     NSUInteger horizontalGridlineIndex = 0;
     for (NSInteger hour = earliestHour; hour <= latestHour; hour++) {
         NSIndexPath *horizontalGridlineIndexPath = [NSIndexPath indexPathForItem:horizontalGridlineIndex inSection:0];
-        UICollectionViewLayoutAttributes *horizontalGridlineAttributes = [self layoutAttributesForDecorationViewAtIndexPath:horizontalGridlineIndexPath ofKind:MSCollectionElementKindHorizontalGridline withItemCache:self.horizontalGridlineAttributes];
+        UICollectionViewLayoutAttributes *horizontalGridlineAttributes = [self layoutAttributesForDecorationViewAtIndexPath:horizontalGridlineIndexPath
+                                                                                                                     ofKind:MSCollectionElementKindHorizontalGridline
+                                                                                                              withItemCache:self.horizontalGridlineAttributes];
         CGFloat horizontalGridlineMinY = nearbyintf(calendarContentMinY + (self.hourHeight * (hour - earliestHour))) - (self.horizontalGridlineHeight / 2.0);
-        
         CGFloat horizontalGridlineXOffset = (calendarGridMinX + self.sectionMargin.left);
-        CGFloat horizontalGridlineMinX = fmaxf(horizontalGridlineXOffset, self.collectionView.contentOffset.x + horizontalGridlineXOffset);
+        CGFloat horizontalGridlineMinX = self.collectionView.contentOffset.x + horizontalGridlineXOffset; //fmaxf(horizontalGridlineXOffset, self.collectionView.contentOffset.x + horizontalGridlineXOffset);
         CGFloat horizontalGridlineWidth = fminf(calendarGridWidth, self.collectionView.frame.size.width);
         horizontalGridlineAttributes.frame = CGRectMake(horizontalGridlineMinX, horizontalGridlineMinY, horizontalGridlineWidth, self.horizontalGridlineHeight);
         horizontalGridlineIndex++;
