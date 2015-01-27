@@ -258,7 +258,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     
     // Time Row Header
     CGFloat timeRowHeaderMinX = fmaxf(self.collectionView.contentOffset.x, 0.0);
-    BOOL timeRowHeaderFloating = ((timeRowHeaderMinX != 0) || self.displayHeaderBackgroundAtOrigin);;
+    BOOL timeRowHeaderFloating = ((timeRowHeaderMinX != 0) || self.displayHeaderBackgroundAtOrigin);
     
     // Time Row Header Background
     NSIndexPath *timeRowHeaderBackgroundIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
@@ -423,9 +423,8 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     CGFloat calendarGridWidth = (self.collectionViewContentSize.width - self.timeRowHeaderWidth - self.contentMargin.left - self.contentMargin.right);
     
     [sectionIndexes enumerateIndexesUsingBlock:^(NSUInteger section, BOOL *stop) {
-        
-        NSInteger earliestHour = [self earliestHourForSection:section];
-        NSInteger latestHour = [self latestHourForSection:section];
+        NSInteger earliestHour = (self.display24hours) ? 0 : [self earliestHourForSection:section];
+        NSInteger latestHour = (self.display24hours) ? 24 : [self latestHourForSection:section];
         
         CGFloat columnMinY = (section == 0) ? 0.0 : [self stackedSectionHeightUpToSection:section];
         CGFloat nextColumnMinY = (section == (NSUInteger)self.collectionView.numberOfSections) ? self.collectionViewContentSize.height : [self stackedSectionHeightUpToSection:(section + 1)];
@@ -988,7 +987,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     CGFloat maxSectionHeight = 0.0;
     for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
 		
-		CGFloat sectionColumnHeight = 0.0;
+        CGFloat sectionColumnHeight = 0.0;
 		if (self.display24hours == YES) {
 			sectionColumnHeight = (self.hourHeight * 24); //Always show 24 hours
 		}
@@ -1034,7 +1033,8 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     if (stackedSectionHeight != 0.0) {
         self.cachedColumnHeights[@(upToSection)] = @(headerAdjustedStackedColumnHeight);
         return headerAdjustedStackedColumnHeight;
-    } else {
+    }
+    else {
         return headerAdjustedStackedColumnHeight;
     }
 }
@@ -1044,9 +1044,13 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     NSInteger earliestHour = [self earliestHourForSection:section];
     NSInteger latestHour = [self latestHourForSection:section];
     
-    if ((earliestHour != NSUndefinedDateComponent) && (latestHour != NSUndefinedDateComponent)) {
+    if (self.display24hours) {
+        return self.hourHeight * 24;
+    }
+    else if ((earliestHour != NSUndefinedDateComponent) && (latestHour != NSUndefinedDateComponent)) {
         return (self.hourHeight * (latestHour - earliestHour));
-    } else {
+    }
+    else {
         return 0.0;
     }
 }
