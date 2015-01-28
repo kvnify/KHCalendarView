@@ -368,15 +368,14 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         dayColumnHeaderAttributes.frame = CGRectMake(sectionMinX, dayColumnHeaderMinY, self.sectionWidth, self.dayColumnHeaderHeight);
         dayColumnHeaderAttributes.zIndex = [self zIndexForElementKind:MSCollectionElementKindDayColumnHeader floating:dayColumnHeaderFloating];
         
-        if (needsToPopulateVerticalGridlineAttributes) {
-            // Vertical Gridline
-            NSIndexPath *verticalGridlineIndexPath = [NSIndexPath indexPathForItem:0 inSection:section];
-            UICollectionViewLayoutAttributes *verticalGridlineAttributes = [self layoutAttributesForDecorationViewAtIndexPath:verticalGridlineIndexPath
-                                                                                                                        ofKind:MSCollectionElementKindVerticalGridline
-                                                                                                                withItemCache:self.verticalGridlineAttributes];
-            CGFloat verticalGridlineMinX = nearbyintf(sectionMinX - self.sectionMargin.left - (self.verticalGridlineWidth / 2.0));
-            verticalGridlineAttributes.frame = CGRectMake(verticalGridlineMinX, calendarGridMinY, self.verticalGridlineWidth, sectionHeight);
-        }
+        // Vertical Gridline
+        NSIndexPath *verticalGridlineIndexPath = [NSIndexPath indexPathForItem:0 inSection:section];
+        UICollectionViewLayoutAttributes *verticalGridlineAttributes = [self layoutAttributesForDecorationViewAtIndexPath:verticalGridlineIndexPath
+                                                                                                                    ofKind:MSCollectionElementKindVerticalGridline
+                                                                                                            withItemCache:self.verticalGridlineAttributes];
+        CGFloat verticalGridlineMinX = nearbyintf(sectionMinX - self.sectionMargin.left - (self.verticalGridlineWidth / 2.0));
+        //CGFloat sectionHeight = nearbyintf((self.hourHeight * (latestHour - earliestHour)) + (self.sectionMargin.top + self.sectionMargin.bottom));
+        verticalGridlineAttributes.frame = CGRectMake(verticalGridlineMinX, self.collectionView.contentOffset.y, self.verticalGridlineWidth, sectionHeight);
         
         if (needsToPopulateItemAttributes) {
             // Items
