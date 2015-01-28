@@ -245,7 +245,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     if (self.collectionView.numberOfSections == 0) { return; }
 
     BOOL needsToPopulateItemAttributes = (self.itemAttributes.count == 0);
-    BOOL needsToPopulateVerticalGridlineAttributes = (self.verticalGridlineAttributes.count == 0);
 
     NSInteger earliestHour = [self earliestHour];
     NSInteger latestHour = [self latestHour];
@@ -253,7 +252,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     CGFloat sectionWidth = (self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right);
     CGFloat sectionHeight = nearbyintf((self.hourHeight * (latestHour - earliestHour)) + (self.sectionMargin.top + self.sectionMargin.bottom));
     CGFloat calendarGridMinX = (self.timeRowHeaderWidth + self.contentMargin.left);
-    CGFloat calendarGridMinY = (self.dayColumnHeaderHeight + self.contentMargin.top);
+    //CGFloat calendarGridMinY = (self.dayColumnHeaderHeight + self.contentMargin.top);
     CGFloat calendarContentMinX = (self.timeRowHeaderWidth + self.contentMargin.left + self.sectionMargin.left);
     CGFloat calendarContentMinY = (self.dayColumnHeaderHeight + self.contentMargin.top + self.sectionMargin.top);
     CGFloat calendarGridWidth = (self.collectionViewContentSize.width - self.timeRowHeaderWidth - self.contentMargin.right);
@@ -374,7 +373,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
                                                                                                                     ofKind:MSCollectionElementKindVerticalGridline
                                                                                                             withItemCache:self.verticalGridlineAttributes];
         CGFloat verticalGridlineMinX = nearbyintf(sectionMinX - self.sectionMargin.left - (self.verticalGridlineWidth / 2.0));
-        //CGFloat sectionHeight = nearbyintf((self.hourHeight * (latestHour - earliestHour)) + (self.sectionMargin.top + self.sectionMargin.bottom));
         verticalGridlineAttributes.frame = CGRectMake(verticalGridlineMinX, self.collectionView.contentOffset.y, self.verticalGridlineWidth, sectionHeight);
         
         if (needsToPopulateItemAttributes) {
