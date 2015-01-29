@@ -1285,7 +1285,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         return [self earliestHour];
     }
     else if (self.cachedEarliestHours[@(section)]) {
-        r   eturn [self.cachedEarliestHours[@(section)] integerValue];
+        return [self.cachedEarliestHours[@(section)] integerValue];
     }
     NSInteger earliestHour = NSIntegerMax;
     for (NSInteger item = 0; item < [self.collectionView numberOfItemsInSection:section]; item++) {
