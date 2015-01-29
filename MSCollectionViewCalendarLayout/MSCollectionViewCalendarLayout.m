@@ -534,7 +534,8 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
             NSMutableArray *sectionItemAttributes = [NSMutableArray new];
             for (NSInteger item = 0; item < [self.collectionView numberOfItemsInSection:section]; item++) {
                 NSIndexPath *itemIndexPath = [NSIndexPath indexPathForItem:item inSection:section];
-                UICollectionViewLayoutAttributes *itemAttributes = [self layoutAttributesForCellAtIndexPath:itemIndexPath withItemCache:self.itemAttributes];
+                UICollectionViewLayoutAttributes *itemAttributes = [self layoutAttributesForCellAtIndexPath:itemIndexPath
+                                                                                              withItemCache:self.itemAttributes];
                 [sectionItemAttributes addObject:itemAttributes];
                 
                 NSDateComponents *itemStartTime = [self startTimeForIndexPath:itemIndexPath];
@@ -552,13 +553,11 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
                     endHourY = ((itemEndTime.hour - earliestHour) * self.hourHeight);
                 }
                 CGFloat endMinuteY = (itemEndTime.minute * self.minuteHeight);
-                
                 CGFloat itemMinY = nearbyintf(startHourY + startMinuteY + calendarGridMinY + self.cellMargin.top);
                 CGFloat itemMaxY = nearbyintf(endHourY + endMinuteY + calendarGridMinY - self.cellMargin.bottom);
                 CGFloat itemMinX = nearbyintf(calendarGridMinX + self.sectionMargin.left + self.cellMargin.left);
                 CGFloat itemMaxX = nearbyintf(itemMinX + (self.sectionWidth - self.cellMargin.left - self.cellMargin.right));
                 itemAttributes.frame = CGRectMake(itemMinX, itemMinY, (itemMaxX - itemMinX), (itemMaxY - itemMinY));
-                
                 itemAttributes.zIndex = [self zIndexForElementKind:nil];
             }
             [self adjustItemsForOverlap:sectionItemAttributes inSection:section sectionMinX:sectionMinX];
@@ -602,7 +601,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
             else {
                 return NO;
             }
-                                                                                                 }]]];
+        }]]];
 
         // If there's items overlapping, we need to adjust them
         if (overlappingItems.count) {
@@ -903,6 +902,9 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     [self.timeRowHeaderAttributes removeAllObjects];
     [self.timeRowHeaderBackgroundAttributes removeAllObjects];
     [self.allAttributes removeAllObjects];
+    
+    [self.currentTimeIndicatorAttributes removeAllObjects];
+    [self.currentTimeHorizontalGridlineAttributes removeAllObjects];
 }
 
 #pragma mark Dates
@@ -1250,14 +1252,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     if (self.cachedEarliestHour != NSIntegerMax) {
         return self.cachedEarliestHour;
     }
-    //    NSInteger earliestHour = NSIntegerMax;
-    //    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
-    //        CGFloat sectionEarliestHour = [self earliestHourForSection:section];
-    //        if ((sectionEarliestHour < earliestHour) && (sectionEarliestHour != NSUndefinedDateComponent)) {
-    //            earliestHour = sectionEarliestHour;
-    //        }
-    //    }
-
     //Always make the day start at 12 AM (00:00)
     NSInteger earliestHour = 0;
     if (earliestHour != NSIntegerMax) {
@@ -1274,13 +1268,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     if (self.cachedLatestHour != NSIntegerMin) {
         return self.cachedLatestHour;
     }
-    //    NSInteger latestHour = NSIntegerMin;
-    //    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
-    //        CGFloat sectionLatestHour = [self latestHourForSection:section];
-    //        if ((sectionLatestHour > latestHour) && (sectionLatestHour != NSUndefinedDateComponent)) {
-    //            latestHour = sectionLatestHour;
-    //        }
-    //    }
     //Always make the day end at 12 PM (24:00)
     NSInteger latestHour = 24;
     if (latestHour != NSIntegerMin) {
