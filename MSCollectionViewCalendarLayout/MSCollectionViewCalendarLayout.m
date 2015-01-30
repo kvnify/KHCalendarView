@@ -252,7 +252,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     CGFloat sectionWidth = (self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right);
     CGFloat sectionHeight = nearbyintf((self.hourHeight * (latestHour - earliestHour)) + (self.sectionMargin.top + self.sectionMargin.bottom));
     CGFloat calendarGridMinX = (self.timeRowHeaderWidth + self.contentMargin.left);
-    //CGFloat calendarGridMinY = (self.dayColumnHeaderHeight + self.contentMargin.top);
     CGFloat calendarContentMinX = (self.timeRowHeaderWidth + self.contentMargin.left + self.sectionMargin.left);
     CGFloat calendarContentMinY = (self.dayColumnHeaderHeight + self.contentMargin.top + self.sectionMargin.top);
     CGFloat calendarGridWidth = (self.collectionViewContentSize.width - self.timeRowHeaderWidth - self.contentMargin.right);
@@ -332,8 +331,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
                                                                                                                  withItemCache:self.dayColumnHeaderBackgroundAttributes];
     // Frame
     CGFloat dayColumnHeaderBackgroundHeight = (self.dayColumnHeaderHeight);
-    //+ ((self.collectionView.contentOffset.y < 0.0) ? fabsf(self.collectionView.contentOffset.y) : 0.0));
-    //dayColumnHeaderBackgroundAttributes.frame = (CGRect){self.collectionView.contentOffset, {self.collectionView.frame.size.width, dayColumnHeaderBackgroundHeight}};
     dayColumnHeaderBackgroundAttributes.frame = CGRectMake(self.collectionView.contentOffset.x,
                                                            self.collectionView.contentOffset.y,
                                                            self.collectionView.frame.size.width,
@@ -680,8 +677,8 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         case MSSectionLayoutTypeHorizontalTile:
             height = [self maxSectionHeight];
             width = (self.timeRowHeaderWidth + self.contentMargin.left
-                     + ((self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right)
-                        * self.collectionView.numberOfSections) + self.contentMargin.right);
+                     + ((self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right) * self.collectionView.numberOfSections)
+                     + self.contentMargin.right);
             break;
         case MSSectionLayoutTypeVerticalTile:
             height = [self stackedSectionHeight];
