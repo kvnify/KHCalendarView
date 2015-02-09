@@ -79,7 +79,8 @@ typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
 - (void)scrollCollectionViewToClosetSectionToDate:(NSDate*)date animated:(BOOL)animated;
 - (NSInteger)closestSectionToDate:(NSDate*)date;
 
-// Since a "reloadData" on the UICollectionView doesn't call "prepareForCollectionViewUpdates:", this method must be called first to flush the internal caches
+// Since a "reloadData" on the UICollectionView doesn't call "prepareForCollectionViewUpdates:", this method must be
+// called first to flush the internal caches
 - (void)invalidateLayoutCache;
 
 @end
@@ -88,9 +89,19 @@ typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
 
 @required
 
-- (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewLayout dayForSection:(NSInteger)section;
-- (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewLayout startTimeForItemAtIndexPath:(NSIndexPath *)indexPath;
-- (NSDate *)collectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewLayout endTimeForItemAtIndexPath:(NSIndexPath *)indexPath;
-- (NSDate *)currentTimeComponentsForCollectionView:(UICollectionView *)collectionView layout:(MSCollectionViewCalendarLayout *)collectionViewLayout;
+- (NSDate *)collectionView:(UICollectionView *)collectionView
+                    layout:(MSCollectionViewCalendarLayout *)collectionViewLayout
+             dayForSection:(NSInteger)section;
+
+- (NSDate *)collectionView:(UICollectionView *)collectionView
+                    layout:(MSCollectionViewCalendarLayout *)collectionViewLayout
+startTimeForItemAtIndexPath:(NSIndexPath *)indexPath;
+
+- (NSDate *)collectionView:(UICollectionView *)collectionView
+                    layout:(MSCollectionViewCalendarLayout *)collectionViewLayout
+ endTimeForItemAtIndexPath:(NSIndexPath *)indexPath;
+
+- (NSDate *)currentTimeComponentsForCollectionView:(UICollectionView *)collectionView
+                                            layout:(MSCollectionViewCalendarLayout *)collectionViewLayout;
 
 @end
