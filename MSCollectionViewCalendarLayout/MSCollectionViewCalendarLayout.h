@@ -39,12 +39,14 @@ extern NSString * const MSCollectionElementKindHorizontalGridline;
 
 typedef NS_ENUM(NSUInteger, MSSectionLayoutType) {
     MSSectionLayoutTypeHorizontalTile,
-    MSSectionLayoutTypeVerticalTile
+    MSSectionLayoutTypeHorizontalList,
+    MSSectionLayoutTypeVerticalTile,
+    MSSectionLayoutTypeVerticalList,
 };
 
 typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
     MSHeaderLayoutTypeTimeRowAboveDayColumn,
-    MSHeaderLayoutTypeDayColumnAboveTimeRow
+    MSHeaderLayoutTypeDayColumnAboveTimeRow,
 };
 
 @class MSCollectionViewCalendarLayout;
