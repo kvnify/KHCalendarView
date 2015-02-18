@@ -241,7 +241,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
             [self preparHorizontalListSectionLayoutForSections:sectionIndexes];
             break;
         case MSSectionLayoutTypeVerticalList:
-            NSLog(@"NOT IMPLEMENTED YET");
+            NSAssert(NO, @"NOT IMPLEMENTED YET");
             break;
     }
 }
