@@ -258,7 +258,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     CGFloat sectionHeight = nearbyintf((self.hourHeight * (latestHour - earliestHour)) + (self.sectionMargin.top + self.sectionMargin.bottom));
     //CGFloat calendarGridMinX = (self.timeRowHeaderWidth + self.contentMargin.left);
     CGFloat calendarContentMinX = (self.contentMargin.left + self.sectionMargin.left);
-    CGFloat calendarContentMinY = (self.dayColumnHeaderHeight + self.contentMargin.top + self.sectionMargin.top);
+    CGFloat calendarContentMinY = (self.dayColumnHeaderHeight + self.contentMargin.top);
     //CGFloat calendarGridWidth = (self.collectionViewContentSize.width - self.timeRowHeaderWidth - self.contentMargin.right);
     
     // Day Column Header
@@ -306,15 +306,14 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
                 UICollectionViewLayoutAttributes *itemAttributes = [self layoutAttributesForCellAtIndexPath:itemIndexPath withItemCache:self.itemAttributes];
                 [sectionItemAttributes addObject:itemAttributes];
                 
-                CGFloat itemMinY = calendarContentMinY + item + self.cellMargin.top; //nearbyintf(startHourY + startMinuteY + calendarContentMinY + self.cellMargin.top);
-                CGFloat itemMaxY = calendarContentMinY + (item * 60) - self.cellMargin.bottom ; //nearbyintf(endHourY + endMinuteY + calendarContentMinY - self.cellMargin.bottom);
-                CGFloat itemMinX = sectionMinX;//nearbyintf(sectionMinX + self.cellMargin.left);
+                CGFloat itemMinY = calendarContentMinY + (item * 60) + self.cellMargin.top;
+                CGFloat itemMaxY = calendarContentMinY + (item * 60 + 60) - self.cellMargin.bottom;
+                CGFloat itemMinX = sectionMinX;
                 CGFloat itemMaxX = nearbyintf(itemMinX + (self.sectionWidth - (self.cellMargin.left + self.cellMargin.right)));
                 CGFloat frameHeight = (itemMaxY - itemMinY);
-                itemAttributes.frame = CGRectMake(itemMinX, itemMinY, (itemMaxX - itemMinX), frameHeight == 0? self.minimumItemHeight : frameHeight);
+                itemAttributes.frame = CGRectMake(itemMinX, itemMinY, (itemMaxX - itemMinX), frameHeight == 0 ? self.minimumItemHeight : frameHeight);
                 itemAttributes.zIndex = [self zIndexForElementKind:nil];
             }
-            [self adjustItemsForOverlap:sectionItemAttributes inSection:section sectionMinX:sectionMinX];
         }
     }];
 }
@@ -757,8 +756,13 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     CGFloat height;
     switch (self.sectionLayoutType) {
         case MSSectionLayoutTypeHorizontalTile:
-        case MSSectionLayoutTypeHorizontalList:
             height = [self maxSectionHeight];
+            width = (self.timeRowHeaderWidth + self.contentMargin.left
+                     + ((self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right) * self.collectionView.numberOfSections)
+                     + self.contentMargin.right);
+            break;
+        case MSSectionLayoutTypeHorizontalList:
+            height = [self minimumSectionHeight];
             width = (self.timeRowHeaderWidth + self.contentMargin.left
                      + ((self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right) * self.collectionView.numberOfSections)
                      + self.contentMargin.right);
@@ -1177,6 +1181,28 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         if (sectionColumnHeight > maxSectionHeight) {
             maxSectionHeight = sectionColumnHeight;
         }
+    }
+    CGFloat headerAdjustedMaxColumnHeight = (self.dayColumnHeaderHeight
+                                             + self.contentMargin.top
+                                             + self.sectionMargin.top
+                                             + maxSectionHeight
+                                             + self.sectionMargin.bottom
+                                             + self.contentMargin.bottom);
+    if (maxSectionHeight != 0.0) {
+        self.cachedMaxColumnHeight = headerAdjustedMaxColumnHeight;
+        return headerAdjustedMaxColumnHeight;
+    }
+    else {
+        return headerAdjustedMaxColumnHeight;
+    }
+}
+
+- (CGFloat)minimumSectionHeight
+{
+    CGFloat maxSectionHeight = 0;
+    for (NSInteger section = 0; section < self.collectionView.numberOfSections; section++) {
+        CGFloat sectionColumnHeight = [self.collectionView numberOfItemsInSection:section] * 60.0f;
+        maxSectionHeight = (sectionColumnHeight > maxSectionHeight) ? sectionColumnHeight : maxSectionHeight;
     }
     CGFloat headerAdjustedMaxColumnHeight = (self.dayColumnHeaderHeight
                                              + self.contentMargin.top
