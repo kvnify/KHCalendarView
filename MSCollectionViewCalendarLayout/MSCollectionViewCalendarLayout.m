@@ -1054,13 +1054,21 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
 
 - (void)scrollCollectionViewToClosetSectionToDate:(NSDate *)date animated:(BOOL)animated
 {
+    [self scrollCollectionViewToClosetSectionToDate:date animated:animated preserveTimeOffset:NO];
+}
+
+- (void)scrollCollectionViewToClosetSectionToDate:(NSDate *)date animated:(BOOL)animated preserveTimeOffset:(BOOL)preserveTimeOffset
+{
     if (self.collectionView.numberOfSections != 0) {
         NSInteger closestSectionToCurrentTime = [self closestSectionToDate:date];
         CGPoint contentOffset;
         CGRect currentTimeHorizontalGridlineattributesFrame = [self.currentTimeHorizontalGridlineAttributes[[NSIndexPath indexPathForItem:0 inSection:0]] frame];
         if (self.sectionLayoutType == MSSectionLayoutTypeHorizontalTile) {
             CGFloat yOffset;
-            if (!CGRectEqualToRect(currentTimeHorizontalGridlineattributesFrame, CGRectZero)) {
+            if (preserveTimeOffset) {
+                yOffset = self.collectionView.contentOffset.y;
+            }
+            else if (!CGRectEqualToRect(currentTimeHorizontalGridlineattributesFrame, CGRectZero)) {
                 yOffset = nearbyintf(CGRectGetMinY(currentTimeHorizontalGridlineattributesFrame) - (CGRectGetHeight(self.collectionView.frame) / 2.0));
             }
             else {

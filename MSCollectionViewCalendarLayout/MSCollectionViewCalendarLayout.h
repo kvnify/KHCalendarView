@@ -79,6 +79,7 @@ typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
 
 - (void)scrollCollectionViewToClosetSectionToCurrentTimeAnimated:(BOOL)animated;
 - (void)scrollCollectionViewToClosetSectionToDate:(NSDate*)date animated:(BOOL)animated;
+- (void)scrollCollectionViewToClosetSectionToDate:(NSDate*)date animated:(BOOL)animated preserveTimeOffset:(BOOL)preserveTimeOffset;
 - (NSInteger)closestSectionToDate:(NSDate*)date;
 
 // Since a "reloadData" on the UICollectionView doesn't call "prepareForCollectionViewUpdates:", this method must be
