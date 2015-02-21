@@ -1063,7 +1063,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         NSInteger closestSectionToCurrentTime = [self closestSectionToDate:date];
         CGPoint contentOffset;
         CGRect currentTimeHorizontalGridlineattributesFrame = [self.currentTimeHorizontalGridlineAttributes[[NSIndexPath indexPathForItem:0 inSection:0]] frame];
-        if (self.sectionLayoutType == MSSectionLayoutTypeHorizontalTile) {
+        if (self.sectionLayoutType == MSSectionLayoutTypeHorizontalTile || self.sectionLayoutType == MSSectionLayoutTypeHorizontalList) {
             CGFloat yOffset;
             if (preserveTimeOffset) {
                 yOffset = self.collectionView.contentOffset.y;
