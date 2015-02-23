@@ -1063,29 +1063,37 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         NSInteger closestSectionToCurrentTime = [self closestSectionToDate:date];
         CGPoint contentOffset;
         CGRect currentTimeHorizontalGridlineattributesFrame = [self.currentTimeHorizontalGridlineAttributes[[NSIndexPath indexPathForItem:0 inSection:0]] frame];
-        if (self.sectionLayoutType == MSSectionLayoutTypeHorizontalTile) {
-            CGFloat yOffset;
-            if (preserveTimeOffset) {
-                yOffset = self.collectionView.contentOffset.y;
+        switch (self.sectionLayoutType) {
+            case MSSectionLayoutTypeHorizontalList:
+            case MSSectionLayoutTypeHorizontalTile:
+            {
+                CGFloat yOffset;
+                if (preserveTimeOffset) {
+                    yOffset = self.collectionView.contentOffset.y;
+                }
+                else if (!CGRectEqualToRect(currentTimeHorizontalGridlineattributesFrame, CGRectZero)) {
+                    yOffset = nearbyintf(CGRectGetMinY(currentTimeHorizontalGridlineattributesFrame) - (CGRectGetHeight(self.collectionView.frame) / 2.0));
+                }
+                else {
+                    yOffset = 0.0;
+                }
+                CGFloat xOffset = self.contentMargin.left + ((self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right) * closestSectionToCurrentTime);
+                contentOffset = CGPointMake(xOffset, yOffset);
+                break;
             }
-            else if (!CGRectEqualToRect(currentTimeHorizontalGridlineattributesFrame, CGRectZero)) {
-                yOffset = nearbyintf(CGRectGetMinY(currentTimeHorizontalGridlineattributesFrame) - (CGRectGetHeight(self.collectionView.frame) / 2.0));
+            case MSSectionLayoutTypeVerticalList:
+            case MSSectionLayoutTypeVerticalTile:
+            {
+                CGFloat yOffset;
+                if (!CGRectEqualToRect(currentTimeHorizontalGridlineattributesFrame, CGRectZero)) {
+                    yOffset = fmaxf(nearbyintf(CGRectGetMinY(currentTimeHorizontalGridlineattributesFrame) - (CGRectGetHeight(self.collectionView.frame) / 2.0)), [self stackedSectionHeightUpToSection:closestSectionToCurrentTime]);
+                }
+                else {
+                    yOffset = [self stackedSectionHeightUpToSection:closestSectionToCurrentTime];
+                }
+                contentOffset = CGPointMake(0.0, yOffset);
+                break;
             }
-            else {
-                yOffset = 0.0;
-            }
-            CGFloat xOffset = self.contentMargin.left + ((self.sectionMargin.left + self.sectionWidth + self.sectionMargin.right) * closestSectionToCurrentTime);
-            contentOffset = CGPointMake(xOffset, yOffset);
-        }
-        else {
-            CGFloat yOffset;
-            if (!CGRectEqualToRect(currentTimeHorizontalGridlineattributesFrame, CGRectZero)) {
-                yOffset = fmaxf(nearbyintf(CGRectGetMinY(currentTimeHorizontalGridlineattributesFrame) - (CGRectGetHeight(self.collectionView.frame) / 2.0)), [self stackedSectionHeightUpToSection:closestSectionToCurrentTime]);
-            }
-            else {
-                yOffset = [self stackedSectionHeightUpToSection:closestSectionToCurrentTime];
-            }
-            contentOffset = CGPointMake(0.0, yOffset);
         }
         // Prevent the content offset from forcing the scroll view content off its bounds
         if (contentOffset.y > (self.collectionView.contentSize.height - self.collectionView.frame.size.height)) {
