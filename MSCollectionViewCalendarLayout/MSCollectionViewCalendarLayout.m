@@ -402,7 +402,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     }
 
     // Day Column Header
-    CGFloat dayColumnHeaderMinY = self.collectionView.contentOffset.y;
+    CGFloat dayColumnHeaderMinY = self.collectionView.contentOffset.y + self.collectionView.contentInset.top;
     BOOL dayColumnHeaderFloating = ((dayColumnHeaderMinY != 0) || self.displayHeaderBackgroundAtOrigin);
 
     // Day Column Header Background
@@ -412,8 +412,8 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
                                                                                                                  withItemCache:self.dayColumnHeaderBackgroundAttributes];
     // Frame
     CGFloat dayColumnHeaderBackgroundHeight = (self.dayColumnHeaderHeight);
-    dayColumnHeaderBackgroundAttributes.frame = CGRectMake(self.collectionView.contentOffset.x,
-                                                           self.collectionView.contentOffset.y,
+    dayColumnHeaderBackgroundAttributes.frame = CGRectMake(self.collectionView.contentOffset.x + self.collectionView.contentInset.left,
+                                                           self.collectionView.contentOffset.y + self.collectionView.contentInset.top,
                                                            self.collectionView.frame.size.width,
                                                            dayColumnHeaderBackgroundHeight);
     // Floating
