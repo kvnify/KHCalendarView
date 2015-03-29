@@ -73,6 +73,8 @@ typedef NS_ENUM(NSUInteger, MSHeaderLayoutType) {
 @property (nonatomic, assign) MSHeaderLayoutType headerLayoutType;
 @property (nonatomic, assign) BOOL displayHeaderBackgroundAtOrigin;
 
+- (CGFloat)currentHorizontalSectionToPoint:(CGFloat)xOffset;
+
 - (NSDate *)dateForTimeRowHeaderAtIndexPath:(NSIndexPath *)indexPath;
 - (NSDate *)dateForDayColumnHeaderAtIndexPath:(NSIndexPath *)indexPath;
 - (NSDate *)dateForPoint:(CGPoint)point;
