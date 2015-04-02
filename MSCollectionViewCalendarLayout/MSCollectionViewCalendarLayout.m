@@ -31,6 +31,7 @@
 
 NSString *const MSCollectionElementKindTimeRowHeader = @"MSCollectionElementKindTimeRow";
 NSString *const MSCollectionElementKindDayColumnHeader = @"MSCollectionElementKindDayHeader";
+NSString *const MSCollectionElementKindDayColumnHeaderMask = @"MSCollectionElementKindDayColumnHeaderMask";
 NSString *const MSCollectionElementKindTimeRowHeaderBackground = @"MSCollectionElementKindTimeRowHeaderBackground";
 NSString *const MSCollectionElementKindDayColumnHeaderBackground = @"MSCollectionElementKindDayColumnHeaderBackground";
 NSString *const MSCollectionElementKindCurrentTimeIndicator = @"MSCollectionElementKindCurrentTimeIndicator";
@@ -100,6 +101,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
 @property (nonatomic, strong) NSMutableDictionary *itemAttributes;
 @property (nonatomic, strong) NSMutableDictionary *dayColumnHeaderAttributes;
 @property (nonatomic, strong) NSMutableDictionary *dayColumnHeaderBackgroundAttributes;
+@property (nonatomic, strong) NSMutableDictionary *dayColumnHeaderMask;
 @property (nonatomic, strong) NSMutableDictionary *timeRowHeaderAttributes;
 @property (nonatomic, strong) NSMutableDictionary *timeRowHeaderBackgroundAttributes;
 @property (nonatomic, strong) NSMutableDictionary *horizontalGridlineAttributes;
@@ -218,6 +220,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     if (needsToPopulateAllAttribtues) {
         [self.allAttributes addObjectsFromArray:[self.dayColumnHeaderAttributes allValues]];
         [self.allAttributes addObjectsFromArray:[self.dayColumnHeaderBackgroundAttributes allValues]];
+        [self.allAttributes addObjectsFromArray:[self.dayColumnHeaderMask allValues]];
         [self.allAttributes addObjectsFromArray:[self.timeRowHeaderAttributes allValues]];
         [self.allAttributes addObjectsFromArray:[self.timeRowHeaderBackgroundAttributes allValues]];
         [self.allAttributes addObjectsFromArray:[self.verticalGridlineAttributes allValues]];
@@ -412,7 +415,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
                                                                                                                  withItemCache:self.dayColumnHeaderBackgroundAttributes];
     // Frame
     CGFloat dayColumnHeaderBackgroundHeight = (self.dayColumnHeaderHeight);
-    dayColumnHeaderBackgroundAttributes.frame = CGRectMake(self.collectionView.contentOffset.x + self.collectionView.contentInset.left,
+    dayColumnHeaderBackgroundAttributes.frame = CGRectMake(self.timeRowHeaderWidth + self.collectionView.contentOffset.x + self.collectionView.contentInset.left,
                                                            self.collectionView.contentOffset.y + self.collectionView.contentInset.top,
                                                            self.collectionView.frame.size.width,
                                                            dayColumnHeaderBackgroundHeight);
@@ -420,6 +423,19 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     dayColumnHeaderBackgroundAttributes.hidden = !dayColumnHeaderFloating;
     dayColumnHeaderBackgroundAttributes.zIndex = [self zIndexForElementKind:MSCollectionElementKindDayColumnHeaderBackground floating:dayColumnHeaderFloating];
 
+    
+    //
+    // Mask over days column above the time header.
+    //
+    UICollectionViewLayoutAttributes *dayColumnHeaderMaskAttributes = [self layoutAttributesForDecorationViewAtIndexPath:dayColumnHeaderBackgroundIndexPath
+                                                                                                                  ofKind:MSCollectionElementKindDayColumnHeaderMask
+                                                                                                           withItemCache:self.dayColumnHeaderMask];
+    dayColumnHeaderMaskAttributes.frame = CGRectMake(self.collectionView.contentOffset.x + self.collectionView.contentInset.left,
+                                                     self.collectionView.contentOffset.y + self.collectionView.contentInset.top,
+                                                     self.timeRowHeaderWidth,
+                                                     dayColumnHeaderBackgroundHeight);
+    dayColumnHeaderMaskAttributes.zIndex = [self zIndexForElementKind:MSCollectionElementKindDayColumnHeader floating:YES] + 1;
+    
     // Time Row Headers
     NSUInteger timeRowHeaderIndex = 0;
     for (NSInteger hour = earliestHour; hour <= latestHour; hour++) {
@@ -815,6 +831,9 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     else if (decorationViewKind == MSCollectionElementKindDayColumnHeader) {
         return self.dayColumnHeaderBackgroundAttributes[indexPath];
     }
+    else if (decorationViewKind == MSCollectionElementKindDayColumnHeaderMask) {
+        return self.dayColumnHeaderMask[indexPath];
+    }
     return nil;
 }
 
@@ -864,6 +883,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     self.itemAttributes = [NSMutableDictionary new];
     self.dayColumnHeaderAttributes = [NSMutableDictionary new];
     self.dayColumnHeaderBackgroundAttributes = [NSMutableDictionary new];
+    self.dayColumnHeaderMask = [NSMutableDictionary new];
     self.timeRowHeaderAttributes = [NSMutableDictionary new];
     self.timeRowHeaderBackgroundAttributes = [NSMutableDictionary new];
     self.verticalGridlineAttributes = [NSMutableDictionary new];
@@ -982,6 +1002,7 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     [self.horizontalGridlineAttributes removeAllObjects];
     [self.dayColumnHeaderAttributes removeAllObjects];
     [self.dayColumnHeaderBackgroundAttributes removeAllObjects];
+    [self.dayColumnHeaderMask removeAllObjects];
     [self.timeRowHeaderAttributes removeAllObjects];
     [self.timeRowHeaderBackgroundAttributes removeAllObjects];
     [self.allAttributes removeAllObjects];

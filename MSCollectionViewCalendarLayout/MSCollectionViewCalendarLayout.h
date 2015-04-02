@@ -32,6 +32,7 @@ extern NSString * const MSCollectionElementKindTimeRowHeader;
 extern NSString * const MSCollectionElementKindDayColumnHeader;
 extern NSString * const MSCollectionElementKindTimeRowHeaderBackground;
 extern NSString * const MSCollectionElementKindDayColumnHeaderBackground;
+extern NSString * const MSCollectionElementKindDayColumnHeaderMask;
 extern NSString * const MSCollectionElementKindCurrentTimeIndicator;
 extern NSString * const MSCollectionElementKindCurrentTimeHorizontalGridline;
 extern NSString * const MSCollectionElementKindVerticalGridline;
