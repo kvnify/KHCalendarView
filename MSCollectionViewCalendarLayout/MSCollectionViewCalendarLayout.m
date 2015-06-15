@@ -1214,7 +1214,6 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         else {
             NSInteger earliestHour = [self earliestHour];
             NSInteger latestHour = [self latestHourForSection:section];
-            CGFloat sectionColumnHeight;
             if ((earliestHour != NSUndefinedDateComponent) && (latestHour != NSUndefinedDateComponent)) {
                 sectionColumnHeight = (self.hourHeight * (latestHour - earliestHour));
             }
